@@ -122,7 +122,7 @@ export interface PoolPairDictionary {
 }
 
 export interface NewPath {
-    id: string; // pool address if direct path, contactenation of pool addresses if multihop
+    id: string; // pool address if direct path, concatenation of pool addresses if multihop
     swaps: Swap[];
     poolPairData: PoolPairBase[];
     limitAmount: BigNumber;

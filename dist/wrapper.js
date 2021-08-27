@@ -39,7 +39,7 @@ const bignumber_1 = require('./utils/bignumber');
 const bmath_1 = require('./bmath');
 const costToken_1 = require('./costToken');
 const multicall_1 = require('./multicall');
-const pools_1 = require('./pools');
+const paths_1 = require('./paths');
 const subgraph_1 = require('./subgraph');
 const sorClass_1 = require('./sorClass');
 const helpersClass_1 = require('./helpersClass');
@@ -309,8 +309,7 @@ class SOR {
                 // Some functions alter pools list directly but we want to keep original so make a copy to work from
                 let poolsList = JSON.parse(JSON.stringify(onChainPools));
                 let pathData;
-                let hopTokens;
-                [pools, hopTokens] = pools_1.filterPoolsOfInterest(
+                [pools, pathData] = paths_1.getPaths(
                     poolsList.pools,
                     tokenIn,
                     tokenOut,
@@ -318,12 +317,7 @@ class SOR {
                     this.disabledOptions,
                     currentBlockTimestamp
                 );
-                [pools, pathData] = pools_1.filterHopPools(
-                    tokenIn,
-                    tokenOut,
-                    hopTokens,
-                    pools
-                );
+                console.log('pathData.length: ', pathData.length);
                 [paths] = sorClass_1.calculatePathLimits(pathData, swapType);
                 // Update cache if used
                 if (useProcessCache)

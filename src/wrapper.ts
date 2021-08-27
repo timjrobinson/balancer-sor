@@ -3,7 +3,7 @@ import { BigNumber } from './utils/bignumber';
 import { bnum, ZERO } from './bmath';
 import { getCostOutputToken } from './costToken';
 import { getOnChainBalances } from './multicall';
-import { filterPoolsOfInterest, filterHopPools } from './pools';
+import { getPaths } from './paths';
 import { fetchSubgraphPools } from './subgraph';
 import { calculatePathLimits, smartOrderRouter } from './sorClass';
 import { formatSwaps } from './helpersClass';
@@ -18,6 +18,7 @@ import {
     PoolFilter,
 } from './types';
 import { ZERO_ADDRESS } from './index';
+import { exit } from 'process';
 
 export class SOR {
     MULTIADDR: { [chainId: number]: string } = {
@@ -317,8 +318,8 @@ export class SOR {
             // Some functions alter pools list directly but we want to keep original so make a copy to work from
             let poolsList = JSON.parse(JSON.stringify(onChainPools));
             let pathData: NewPath[];
-            let hopTokens: string[];
-            [pools, hopTokens] = filterPoolsOfInterest(
+
+            [pools, pathData] = getPaths(
                 poolsList.pools,
                 tokenIn,
                 tokenOut,
@@ -326,14 +327,7 @@ export class SOR {
                 this.disabledOptions,
                 currentBlockTimestamp
             );
-
-            [pools, pathData] = filterHopPools(
-                tokenIn,
-                tokenOut,
-                hopTokens,
-                pools
-            );
-
+            console.log('pathData.length: ', pathData.length);
             [paths] = calculatePathLimits(pathData, swapType);
 
             // Update cache if used
