@@ -28,7 +28,6 @@ exports.SOR = wrapper_1.SOR;
 __export(require('./config'));
 __export(require('./types'));
 __export(require('./helpersClass'));
-__export(require('./pools'));
 __export(require('./sorClass'));
 __export(require('./frontendHelpers/weightedHelpers'));
 exports.ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';

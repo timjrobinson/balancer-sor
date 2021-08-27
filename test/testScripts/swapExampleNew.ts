@@ -344,7 +344,7 @@ async function simpleSwap() {
     const tokenIn = ADDRESSES[networkId].WETH;
     const tokenOut = ADDRESSES[networkId].USDC;
     const swapType = SwapTypes.SwapExactIn;
-    const swapAmount = new BigNumber(1); // In normalized format, i.e. 1USDC = 1
+    const swapAmount = new BigNumber(100); // In normalized format, i.e. 1USDC = 1
     const executeTrade = false;
 
     const provider = new JsonRpcProvider(PROVIDER_URLS[networkId]);

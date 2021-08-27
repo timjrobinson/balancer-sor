@@ -121,30 +121,15 @@ exports.smartOrderRouter = (
     paths = pathContest(paths, swapType, totalSwapAmount);
     console.log('Number of winner paths, ', paths.length);
     // Generate subsets of paths of size up to 4
+    let n = paths.length;
+    let indicesArray = generateIndicesArray(n, 4);
     let subsets = [];
-    for (let i = 0; i < paths.length; i++) {
-        subsets.push([paths[i]]);
-    }
-    for (let i = 0; i < paths.length; i++) {
-        for (let j = i + 1; j < paths.length; j++) {
-            subsets.push([paths[i], paths[j]]);
+    for (let indices of indicesArray) {
+        let subset = [];
+        for (let index of indices) {
+            subset.push(paths[index]);
         }
-    }
-    for (let i = 0; i < paths.length; i++) {
-        for (let j = i + 1; j < paths.length; j++) {
-            for (let k = j + 1; k < paths.length; k++) {
-                subsets.push([paths[i], paths[j], paths[k]]);
-            }
-        }
-    }
-    for (let i = 0; i < paths.length; i++) {
-        for (let j = i + 1; j < paths.length; j++) {
-            for (let k = j + 1; k < paths.length; k++) {
-                for (let l = k + 1; l < paths.length; l++) {
-                    subsets.push([paths[i], paths[j], paths[k], paths[l]]);
-                }
-            }
-        }
+        subsets.push(subset);
     }
     let currentUtility = bmath_1.bnum(0).minus(bmath_1.bnum(Infinity));
     for (let subset of subsets) {
@@ -208,7 +193,6 @@ exports.smartOrderRouter = (
     for (let i = 0; i < bestPaths.length; i++) {
         console.log('Length of path', i, ':', bestPaths[i].pools.length);
     }
-    //    console.log("bestPaths[0]", bestPaths[0]);
     bestPaths.forEach((path, i) => {
         let swapAmount = bestSwapAmounts[i];
         // 0 swap amounts can occur due to rounding errors but we don't want to pass those on so filter out
@@ -220,18 +204,9 @@ exports.smartOrderRouter = (
         totalSwapAmountWithRoundingErrors = totalSwapAmountWithRoundingErrors.plus(
             swapAmount
         );
-        // // TODO: remove. To debug only!
-        /*
-        console.log(
-            'Prices should be all very close (unless one of the paths is on the limit!'
-        );
-        console.log(
-            getSpotPriceAfterSwapForPath(path, swapType, swapAmount).toNumber()
-        );
-            */
         let poolPairData = path.poolPairData;
         if (i == 0)
-            // Store lenght of first path to add dust to correct rounding error at the end
+            // Store length of first path to add dust to correct rounding error at the end
             lenghtFirstPath = path.swaps.length;
         let pathSwaps = [];
         let amounts = [];
@@ -639,6 +614,32 @@ function redistributeInputAmounts(
         }
     }
     return [swapAmounts, exceedingAmounts];
+}
+// This function generates a double array with every possible
+// ordered set of size up to k of indices 0, 1,..., n.
+function generateIndicesArray(n, k) {
+    let nextCardinalIndices = indicesArray => {
+        let ans = [];
+        for (let indices of indicesArray) {
+            let last = -1;
+            if (indices.length > 0) last = indices[indices.length - 1];
+            for (let j = last + 1; j < n; j++) {
+                let newIndices = [...indices];
+                newIndices.push(j);
+                ans.push(newIndices);
+            }
+        }
+        return ans;
+    };
+    let indicesArrayFixedCardinal = [[]];
+    let indicesArray = [];
+    for (let i = 0; i < k; i++) {
+        indicesArrayFixedCardinal = nextCardinalIndices(
+            indicesArrayFixedCardinal
+        );
+        indicesArray = indicesArray.concat(indicesArrayFixedCardinal);
+    }
+    return indicesArray;
 }
 function pathContest(paths, swapType, totalSwapAmount) {
     let winners = [];

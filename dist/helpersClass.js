@@ -240,7 +240,7 @@ function getDerivativeSpotPriceAfterSwapForPath(path, swapType, amount) {
                 .times(prodsFirstSpotPrices[i]);
             // The following option is more efficient but returns less precision due to the division
             /*          let thisSpotPrice = getSpotPriceAfterSwap(pools[i], poolPairData[i], swapType, amounts[i + 1]);
-                        newTerm = newTerm.div(thisSpotPrice).times(prodsSpotPrices[0]);*/
+            newTerm = newTerm.div(thisSpotPrice).times(prodsSpotPrices[0]);*/
             ans = ans.plus(newTerm);
         }
     }

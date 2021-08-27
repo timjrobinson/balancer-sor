@@ -149,7 +149,7 @@ function getPaths(
         currentBlockTimestamp
     ); // 7 ms
     // Construct a dictionary that stores for each token the set of 1-paths whose
-    // origin is the token. This may include BPTs.
+    // source is the token. This may include BPTs.
     // This takes long (~1sec) if there are many pools (~1000)
     let start = new Date().getTime();
     let elementaryPathsDict;
@@ -197,7 +197,6 @@ function getPaths(
             let lastToken = path.poolPairData[i].tokenOut;
             if (lastToken === tokenOut) {
                 paths.push(path);
-                //                console.log("pushié path (a), length", paths[paths.length - 1].pools.length);
             } else {
                 for (let step of elementaryPathsDict[lastToken]) {
                     if (path.pools.includes(step.pools[0])) continue; // checks that this pool is not already used by the path
@@ -207,8 +206,6 @@ function getPaths(
                             continue;
                         else {
                             paths.push(composePaths([path, step]));
-                            //                            console.log("pushié path (b), length", paths[paths.length - 1].pools.length);
-                            //                            console.log(paths[paths.length - 1].pools );
                         }
                     } else {
                         openPaths[i + 1].add(composePaths([path, step]));
@@ -218,7 +215,7 @@ function getPaths(
         }
     }
     elapsed = new Date().getTime() - start;
-    console.log('Paths construction: ', elapsed, 'ms'); // milisegundos
+    console.log('Paths construction: ', elapsed, 'ms');
     return [poolsDictionary, paths];
 }
 exports.getPaths = getPaths;
