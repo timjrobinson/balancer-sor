@@ -1,4 +1,3 @@
-require('dotenv').config();
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { expect } from 'chai';
 import { PoolCacher } from '../src/poolCaching';

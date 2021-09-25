@@ -1,5 +1,5 @@
 // npx mocha -r ts-node/register test/wrapper.spec.ts
-require('dotenv').config();
+
 import { expect } from 'chai';
 
 import { RouteProposer } from '../src/routeProposal';

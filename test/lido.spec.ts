@@ -1,4 +1,3 @@
-require('dotenv').config();
 import { expect } from 'chai';
 import cloneDeep from 'lodash.clonedeep';
 import { AddressZero } from '@ethersproject/constants';

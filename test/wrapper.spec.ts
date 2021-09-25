@@ -1,5 +1,5 @@
 // npx mocha -r ts-node/register test/wrapper.spec.ts
-require('dotenv').config();
+
 import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { assert, expect } from 'chai';

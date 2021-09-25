@@ -1,4 +1,3 @@
-require('dotenv').config();
 import { expect } from 'chai';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { SOR } from '../src';

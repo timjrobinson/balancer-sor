@@ -6,7 +6,7 @@ File saved at: ./testData/elementPools/testTrades.json
 Code to generate test vectors:
 https://github.com/element-fi/elf-contracts/blob/main/scripts/load-sim-data.sh
 */
-require('dotenv').config();
+
 import { expect, assert } from 'chai';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { SOR, SwapInfo, SwapTypes } from '../src';
