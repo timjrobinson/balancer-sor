@@ -183,7 +183,6 @@ declare class PoolCacher {
 declare class SwapCostCalculator {
     private provider;
     private chainId;
-    private tokenDecimalsCache;
     private tokenPriceCache;
     private initializeCache;
     constructor(provider: BaseProvider, chainId: number);
@@ -194,7 +193,6 @@ declare class SwapCostCalculator {
     setChainId(chainId: number): void;
     /**
      * @param tokenAddress - the address of the token for which to express the native asset in terms of
-     * @param tokenPrice - the price of the native asset in terms of the provided token
      */
     getNativeAssetPriceInToken(tokenAddress: string): Promise<BigNumber>;
     /**
@@ -202,12 +200,6 @@ declare class SwapCostCalculator {
      * @param tokenPrice - the price of the native asset in terms of the provided token
      */
     setNativeAssetPriceInToken(tokenAddress: string, tokenPrice: string): void;
-    /**
-     * @dev Caches the number of decimals for a particular token to avoid onchain lookups
-     * @param tokenAddress - the address of the provided token
-     * @param decimals - the number of decimals of the provided token
-     */
-    setTokenDecimals(tokenAddress: string, decimals: number): void;
     /**
      * Calculate the cost of spending a certain amount of gas in terms of a token.
      * This allows us to determine whether an increased amount of tokens gained
@@ -218,7 +210,6 @@ declare class SwapCostCalculator {
         gasPriceWei: BigNumber,
         swapGas?: BigNumber
     ): Promise<BigNumber>;
-    private getTokenDecimals;
 }
 
 declare class SOR {
