@@ -674,7 +674,7 @@ describe('linear pool tests', () => {
     });
 });
 
-function getPaths(
+export function getPaths(
     tokenIn: string,
     tokenOut: string,
     swapType: SwapTypes,
