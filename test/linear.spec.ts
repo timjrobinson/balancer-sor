@@ -521,7 +521,7 @@ describe('linear pool tests', () => {
                     parseFixed('25', DAI.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('25631282');
+                expect(returnAmount).to.eq('24988519');
             });
 
             it('DAI>USDC, SwapExactOut', async () => {
@@ -532,7 +532,7 @@ describe('linear pool tests', () => {
                     parseFixed('27', USDC.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('26335005495898592574');
+                expect(returnAmount).to.eq('27012403364987174688');
             });
 
             it('USDC>DAI, SwapExactIn', async () => {
@@ -543,7 +543,7 @@ describe('linear pool tests', () => {
                     parseFixed('270', USDC.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('263139420004032600258');
+                expect(returnAmount).to.eq('269907980671759958706');
             });
 
             it('USDC>DAI, SwapExactOut', async () => {
@@ -554,7 +554,7 @@ describe('linear pool tests', () => {
                     parseFixed('7777', DAI.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('7979762223'); // Confirmed by Sergio
+                expect(returnAmount).to.eq('7779651413');
             });
         });
 
@@ -567,7 +567,7 @@ describe('linear pool tests', () => {
                     parseFixed('7.21', USDC.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('652413919893769122');
+                expect(returnAmount).to.eq('642476784865160355');
             });
 
             it('BAL>DAI, SwapExactIn', async () => {
@@ -578,7 +578,7 @@ describe('linear pool tests', () => {
                     parseFixed('321.123', BAL.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('3320451170714139189569');
+                expect(returnAmount).to.eq('9962681147629099999894');
             });
 
             it('USDC>BAL, SwapExactOut', async () => {
@@ -589,7 +589,7 @@ describe('linear pool tests', () => {
                     parseFixed('0.652413919893769122', BAL.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('7210002');
+                expect(returnAmount).to.eq('7321519');
             });
 
             it('BAL>DAI, SwapExactOut', async () => {
@@ -600,7 +600,7 @@ describe('linear pool tests', () => {
                     parseFixed('3320.451170714139189569', DAI.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('321122999999986750182');
+                expect(returnAmount).to.eq('321122999999966548161');
             });
         });
 
@@ -613,7 +613,7 @@ describe('linear pool tests', () => {
                     parseFixed('1', DAI.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('946927175843694145');
+                expect(returnAmount).to.eq('892828508220000000');
             });
 
             it('USDC>staBAL3, SwapExactOut', async () => {
@@ -624,7 +624,7 @@ describe('linear pool tests', () => {
                     parseFixed('1', staBAL3.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('1083149');
+                expect(returnAmount).to.eq('1122219');
             });
 
             it('staBAL3>USDC, SwapExactIn', async () => {
@@ -635,7 +635,7 @@ describe('linear pool tests', () => {
                     parseFixed('1', staBAL3.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('1082280');
+                expect(returnAmount).to.eq('3162676');
             });
 
             it('staBAL3>DAI, SwapExactOut', async () => {
@@ -646,7 +646,7 @@ describe('linear pool tests', () => {
                     parseFixed('1', DAI.decimals),
                     smallLinear.pools
                 );
-                expect(returnAmount).to.eq('947685172351949208');
+                expect(returnAmount).to.eq('947685172351948688');
             });
 
             it('aDAI>staBAL3, SwapExactIn', async () => {
