@@ -47,7 +47,8 @@ describe('path-math:Tests path quantities derived from underlying pools quantiti
     );
 
     let longPath = paths[0];
-
+    // BAL > [weightedBalWeth] > WETH > [weightedWethStaBal3Id] >
+    // STABAL3 > [staBal3Id] > bUSDT > [linearUSDT] > USDT
     assert.equal(longPath.swaps.length, 4, 'path length expected to be 4');
     it('Test path limits for long paths', async () => {
         let pathLimit = getLimitAmountSwapForPath(
@@ -58,6 +59,7 @@ describe('path-math:Tests path quantities derived from underlying pools quantiti
             longPath,
             SwapTypes.SwapExactIn
         );
+        console.log('longPath limit: ', longPath.limitAmount.toString());
         let PRECISION: BigNumber = One.mul(10 ** 10);
         assert.approximately(
             expectedPathLimit.mul(PRECISION).div(pathLimit).toNumber(),
@@ -78,19 +80,101 @@ describe('path-math:Tests path quantities derived from underlying pools quantiti
         );
     });
 
-    let delta = 100;
-    let error = 0.000011;
-    let path = getSubpath(longPath, 0, 3); // 0, 4 not working for some reason.
-    [[path]] = calculatePathLimits([path], SwapTypes.SwapExactIn);
+    let delta = 10;
+    let error = 0.00005;
+    let path04 = getSubpath(longPath, 0, 4);
+    let path03 = getSubpath(longPath, 0, 3);
+    let path02 = getSubpath(longPath, 0, 2);
+    let path01 = getSubpath(longPath, 0, 1);
+    let path34 = getSubpath(longPath, 3, 4);
+    // path limit seems to be working bad: the path returns zero
+    // for amounts under the path-limit
+    // (the fourth pool returns zero, possibly because it exceeds the pool limit)
+
+    [[path04]] = calculatePathLimits([path04], SwapTypes.SwapExactIn);
+    [[path03]] = calculatePathLimits([path03], SwapTypes.SwapExactIn);
+    [[path02]] = calculatePathLimits([path02], SwapTypes.SwapExactIn);
+    [[path01]] = calculatePathLimits([path01], SwapTypes.SwapExactIn);
+    [[path34]] = calculatePathLimits([path34], SwapTypes.SwapExactIn);
+
+    // BAL > [weightedBalWeth] > WETH > [weightedWethStaBal3Id] >
+    // STABAL3 > [staBal3Id] > bUSDT > [linearUSDT] > USDT
+    console.log('path04 limit: ', path04.limitAmount.toString());
+    console.log('path03 limit: ', path03.limitAmount.toString());
+    console.log('path02 limit: ', path02.limitAmount.toString());
+    console.log('path01 limit: ', path01.limitAmount.toString());
+    console.log('path34 limit: ', path34.limitAmount.toString());
+
+    //   9724911176976388000000 longPath limit
+    //           000000000000000000
+    // 624812724721153200000000 path03
+    //   9724911176976388000000 path04
+
+    // Tests to perform:
+    // Maybe: (a) inclusion gives a larger limit
+    // (b) let amount = limit of longPath = 9724, get output 03 for 9724.
+    // This should be the limit for the last pool.
+
+    let WETH_out = getOutputAmountSwapForPath(
+        path01,
+        SwapTypes.SwapExactIn,
+        bnum(9724.91117697),
+        BAL.decimals
+    );
+    console.log(' WETH_out: ', WETH_out.toString());
+    let STABAL3_out = getOutputAmountSwapForPath(
+        path02,
+        SwapTypes.SwapExactIn,
+        bnum(9724.91117697),
+        BAL.decimals
+    );
+    console.log('STABAL3_out: ', STABAL3_out.toString());
+    let bUSDT_out = getOutputAmountSwapForPath(
+        path03,
+        SwapTypes.SwapExactIn,
+        bnum(9724.91117697),
+        BAL.decimals
+    );
+    console.log('bUSDT_out: ', bUSDT_out.toString());
+    let USDT_out = getOutputAmountSwapForPath(
+        path04,
+        SwapTypes.SwapExactIn,
+        bnum(9724.91117697),
+        BAL.decimals
+    );
+    //    let USDT_out = getOutputAmountSwapForPath(path34, SwapTypes.SwapExactIn, bnum(94777.251184), 18);
+    console.log('USDT_out: ', USDT_out.toString());
+
+    const linearUSDT = path34.pools[0];
+    const linearUSDTLimit = linearUSDT.getLimitAmountSwap(
+        path34.poolPairData[0],
+        SwapTypes.SwapExactIn
+    );
+    console.log('linearUSDTLimit: ', linearUSDTLimit.toString());
+
+    // linearUSDTLimit = path limit(path34) OK
+    // da 94777.251184834123158. Este valor es correcto, porque es lo máximo que puedo
+    // cambiar por USDT, obteniendo casi todo el USDT de la reserva, que es 100000
+
+    // Inconsistencia: el último pool, el linear, es el que limita al longPath, como se ve
+    // de los límites de los subpaths 03, 04.
+
+    // Simplificación de la inconsistencia:
+    // Si mando cerca del límite de 04, el outcome es 297019.91...USDT, que es más que lo
+    // que hay en la reserva (superé el límite en el último pool).
+
+    // El problema es que el código no está actualizado
+    // Probar esto en una branch con la actualización mergeada
+    // Probablemente la de John.
 
     context('Path spot prices', async () => {
         it('Spot price as derivative of outcome', async () => {
             let inputDecimals = BAL.decimals;
-            let amount = bnum(188580);
+            let amount = bnum(9524);
             checkPathDerivative(
                 getOutputAmountSwapForPath,
                 getSpotPriceAfterSwapForPath,
-                path,
+                path04,
                 SwapTypes.SwapExactIn,
                 amount,
                 BAL.decimals,
@@ -116,6 +200,7 @@ function getExpectedPathLimit(path: NewPath, swapType: SwapTypes): BigNumber {
                 SwapTypes.SwapExactIn
             );
             let pulledPoolLimit = poolLimit;
+            console.log('pulledPoolLimit: ', pulledPoolLimit.toString());
             for (let j = i; j > 0; j--) {
                 pulledPoolLimit = getOutputAmountSwap(
                     pools[j - 1],
@@ -123,6 +208,12 @@ function getExpectedPathLimit(path: NewPath, swapType: SwapTypes): BigNumber {
                     SwapTypes.SwapExactOut,
                     pulledPoolLimit
                 );
+                if (i == 3) {
+                    console.log(
+                        'pulledPoolLimit: ',
+                        pulledPoolLimit.toString()
+                    );
+                }
             }
             limit = pulledPoolLimit.lt(limit) ? pulledPoolLimit : limit;
         }
@@ -176,6 +267,8 @@ function checkPathDerivative(
     console.log(x.plus(delta).toString());
     let f1 = fn(path, swapType, x.plus(delta), inputDecimals);
     let f2 = fn(path, swapType, x, inputDecimals);
+    console.log('f1: ', f1.toString());
+    console.log('f2: ', f2.toString());
 
     let incrementalQuotient = f1.minus(f2).div(delta);
     if (inverse) incrementalQuotient = bnum(1).div(incrementalQuotient);
@@ -183,6 +276,7 @@ function checkPathDerivative(
     console.log('incremental quotient: ', incrementalQuotient.toString());
 
     const der_ans = der(path, swapType, x);
+    console.log('der_ans: ', der_ans.toString());
     assert.approximately(
         incrementalQuotient.div(der_ans).toNumber(),
         1,
