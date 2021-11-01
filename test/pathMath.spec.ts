@@ -1,15 +1,9 @@
-// TO DO: complete metaStablePool and stableMath functions following the
-// case exact bpt in for token out.
-// Make tests for stableMath following what has been done for linearMath (math.spec.ts).
-
 // Create paths of different lengths, including long paths using linear pools
 // and test getOutputAmountSwapForPath, getSpotPriceAfterSwapForPath,
 // getDerivativeSpotPriceAfterSwapForPath
 // Each should be the derivative of the previous one
 // (( Some error could happen at the last one since derivative
 // of spot price has a discontinuity for linear pools, but only at specific points ))
-
-// Test exactIn and exactOut.
 
 import { assert } from 'chai';
 import { NewPath, SwapTypes } from '../src/types';
@@ -105,13 +99,8 @@ describe('path-math:Tests path quantities derived from underlying pools quantiti
     console.log('path01 limit: ', path01.limitAmount.toString());
     console.log('path34 limit: ', path34.limitAmount.toString());
 
-    //   9724911176976388000000 longPath limit
-    //           000000000000000000
-    // 624812724721153200000000 path03
-    //   9724911176976388000000 path04
-
     // Tests to perform:
-    // Maybe: (a) inclusion gives a larger limit
+    // (a) inclusion gives a larger limit
     // (b) let amount = limit of longPath = 9724, get output 03 for 9724.
     // This should be the limit for the last pool.
 
@@ -142,7 +131,7 @@ describe('path-math:Tests path quantities derived from underlying pools quantiti
         bnum(9724.91117697),
         BAL.decimals
     );
-    //    let USDT_out = getOutputAmountSwapForPath(path34, SwapTypes.SwapExactIn, bnum(94777.251184), 18);
+    // let USDT_out = getOutputAmountSwapForPath(path34, SwapTypes.SwapExactIn, bnum(94777.251184), 18);
     console.log('USDT_out: ', USDT_out.toString());
 
     const linearUSDT = path34.pools[0];
@@ -151,21 +140,6 @@ describe('path-math:Tests path quantities derived from underlying pools quantiti
         SwapTypes.SwapExactIn
     );
     console.log('linearUSDTLimit: ', linearUSDTLimit.toString());
-
-    // linearUSDTLimit = path limit(path34) OK
-    // da 94777.251184834123158. Este valor es correcto, porque es lo máximo que puedo
-    // cambiar por USDT, obteniendo casi todo el USDT de la reserva, que es 100000
-
-    // Inconsistencia: el último pool, el linear, es el que limita al longPath, como se ve
-    // de los límites de los subpaths 03, 04.
-
-    // Simplificación de la inconsistencia:
-    // Si mando cerca del límite de 04, el outcome es 297019.91...USDT, que es más que lo
-    // que hay en la reserva (superé el límite en el último pool).
-
-    // El problema es que el código no está actualizado
-    // Probar esto en una branch con la actualización mergeada
-    // Probablemente la de John.
 
     context('Path spot prices', async () => {
         it('Spot price as derivative of outcome', async () => {
