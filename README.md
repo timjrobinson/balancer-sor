@@ -15,45 +15,24 @@
 
 <h1 align=center><code>Smart Order Router (SOR)</code></h1>
 
-Smart Order Router, or SOR, is an off-chain linear optimization of routing orders across pools for best price execution.
+## Math times test
 
-SOR exists in the Bronze release as a way to aggregate liquidity across all Balancer pools. Future releases of Balancer will accomplish this on-chain and allow aggregate contract fillable liquidity.
+This branch aims to compare thhow much time take different implementations
+of pool maths.
 
-Liquidity aggregators are free to use the SOR npm package or create their own order routing across pools.
+We compare Paraswap's implementation for weighted and stable pools with
+SOR current implementation.
 
-[Read More](https://docs.balancer.finance/protocol/sor)
+Tests can be found at test/mathTimes.spec.ts.
+The code by paraswap was included at src/paraswap.
 
-## Overview Of Use And Example
+They perform computations of _out given in_, print the time taken
+at each implementation and also the results, so that we know
+that we are simulating the same swap at both sides.
 
-There are two types of swap available:
+The code of this test was written in a way that it is very easy to
+try different parameters, either balances, amounts, weights or amp factor.
 
-**swapExactIn** - i.e. You want to swap exactly 1 ETH as input and SOR will calculate X amount of BAL you receive in return.  
-or  
-**swapExactOut** - i.e. You want to receive exactly 1 BAL and SOR will calculate X amount of ETH you must input.
-
-The SOR will return totalReturn/totalInput as well as a list swaps to achieve the total. Swaps can be through direct pools, i.e. A > POOL1 > B, or via a multihop pool, i.e. A > POOL1 > C > POOL2 > B. The swaps are returned in a format that can be directly to the Vault to execute the trade.
-
-The example file `swapExample.ts` in: [./testScripts](test/testScripts/), demonstrates full examples with comments.
-
-To Run:
-
-Create a .env file in root dir with your infura provider key: `INFURA=your_key`
-
-Install dependencies: `$ yarn install`
-
-Run example: `$ ts-node ./test/testScripts/swapExample.ts`
-
-## Environment Variables
-
-Optional config values can be set in the .env file:
-
-PRICE_ERROR_TOLERANCE - how close we expect prices after swap to be in SOR suggested paths. Defaults 0.00001.
-
-INFINITESIMAL - Infinitesimal is an amount that's used to initialize swap amounts so they are not zero or the path's limit. Defaults 0.000001.
-
-Example:
-
-```
-PRICE_ERROR_TOLERANCE=0.00001
-INFINITESIMAL=0.000001
-```
+The conclusion so far is that Paraswap implementation is faster only by a factor
+of 2.2. The SDK is considerably slower for weighted pools: an extra 3.5 factor,
+while this factor is only 1.15 for stable pools.

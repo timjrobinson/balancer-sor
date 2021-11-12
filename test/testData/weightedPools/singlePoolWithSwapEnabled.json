@@ -17,7 +17,7 @@
                 },
                 {
                     "address": "0xba100000625a3754423978a60c9317c58a424e3d",
-                    "balance": "20000000.78213445",
+                    "balance": "200000",
                     "decimals": 18,
                     "weight": "50",
                     "id": "weightedBalWeth-0xba100000625a3754423978a60c9317c58a424e3d",
