@@ -17,16 +17,16 @@
 
 ## Math times test
 
-This branch aims to compare thhow much time take different implementations
-of pool maths.
+This branch aims to compare the times taken by different implementations
+of pools' numeric computations.
 
-We compare Paraswap's implementation for weighted and stable pools with
+In particular we compare Paraswap's implementation for weighted and stable pools with
 SOR current implementation.
 
 Tests can be found at test/mathTimes.spec.ts.
 The code by paraswap was included at src/paraswap.
 
-They perform computations of _out given in_, print the time taken
+Our tests perform computations of _out given in_, print the time taken
 at each implementation and also the results, so that we know
 that we are simulating the same swap at both sides.
 
@@ -36,3 +36,5 @@ try different parameters, either balances, amounts, weights or amp factor.
 The conclusion so far is that Paraswap implementation is faster only by a factor
 of 2.2. The SDK is considerably slower for weighted pools: an extra 3.5 factor,
 while this factor is only 1.15 for stable pools.
+
+To run these tests use for instance `$ yarn test -f mathTimes`
