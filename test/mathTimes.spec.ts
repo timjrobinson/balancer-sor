@@ -3,20 +3,32 @@ import { bnum } from '../src/utils/bignumber';
 import { BAL, WETH } from './lib/constants';
 import singleWeightedPool from './testData/weightedPools/singlePoolWithSwapEnabled.json';
 import singleStablePool from './testData/stablePools/stableMathTimes.json';
-import { WeightedPool } from '../src/pools/weightedPool/weightedPool';
+import {
+    WeightedPool,
+    WeightedPoolPairData,
+} from '../src/pools/weightedPool/weightedPool';
 import * as WeightedMath from '../src/pools/weightedPool/weightedMath';
 import { StablePool } from '../src/pools/stablePool/stablePool';
 import * as StableMath from '../src/pools/stablePool/stableMath';
 import * as ParaswapPool from '../src/paraswap/balancer-v2-pool';
 import { BigNumber, parseFixed } from '@ethersproject/bignumber';
 import { MathSol } from '../src/paraswap/balancer-v2-math';
+import { SwapTypes } from '../src/types';
 
 describe('mathTimes tests', () => {
     const repetitions = 50000;
     context('weighted-time', () => {
         // This will use a weighted pool with two tokens,
-        // balanceIn, balanceOut, weightIn, weightOut, amount.
-        compareWeighted(100000, 200000, 500, 50, 100, repetitions);
+        // balanceIn, balanceOut, weightIn, weightOut, swapType, amount.
+        compareWeighted(
+            100000,
+            200000,
+            500,
+            50,
+            100,
+            SwapTypes.SwapExactIn,
+            repetitions
+        );
     });
 
     context('stable-time', () => {
@@ -33,6 +45,7 @@ function compareWeighted(
     weightIn: number,
     weightOut: number,
     amount: number,
+    swapType: SwapTypes,
     repetitions: number
 ) {
     const weightedPool = WeightedPool.fromPool(singleWeightedPool.pools[0]);
@@ -45,25 +58,28 @@ function compareWeighted(
     weightedPoolPairData.weightIn = BigNumber.from(weightIn);
     weightedPoolPairData.weightOut = BigNumber.from(weightOut);
 
+    let weightedPoolSwapFunction;
+    let weightedPoolMathFunction;
+    if (swapType == SwapTypes.SwapExactIn) {
+        weightedPoolSwapFunction = weightedPool._exactTokenInForTokenOut;
+        weightedPoolMathFunction = WeightedMath._exactTokenInForTokenOut;
+    } else {
+        weightedPoolSwapFunction = weightedPool._tokenInForExactTokenOut;
+        weightedPoolMathFunction = WeightedMath._tokenInForExactTokenOut;
+    }
+
     let start = new Date().getTime();
     let end = new Date().getTime();
     for (let i = 0; i < repetitions; i++) {
-        weightedPool._exactTokenInForTokenOut(
-            weightedPoolPairData,
-            bnum(100),
-            true
-        );
+        weightedPoolSwapFunction(weightedPoolPairData, bnum(100), true);
     }
     end = new Date().getTime();
     console.log('SOR weightedPool, exact true (SDK): ', end - start);
 
     start = new Date().getTime();
+
     for (let i = 0; i < repetitions; i++) {
-        weightedPool._exactTokenInForTokenOut(
-            weightedPoolPairData,
-            bnum(100),
-            false
-        );
+        weightedPoolSwapFunction(weightedPoolPairData, bnum(100), false);
     }
     end = new Date().getTime();
     console.log('SOR weightedPool, exact false (SOR): ', end - start);
@@ -71,10 +87,7 @@ function compareWeighted(
     let sorResult;
     start = new Date().getTime();
     for (let i = 0; i < repetitions; i++) {
-        sorResult = WeightedMath._exactTokenInForTokenOut(
-            bnum(100),
-            weightedPoolPairData
-        );
+        sorResult = weightedPoolMathFunction(bnum(100), weightedPoolPairData);
     }
     end = new Date().getTime();
     const sorTime = end - start;
@@ -87,24 +100,29 @@ function compareWeighted(
     const bigIntweightOut = BigInt(weightOut);
 
     let paraswapResult;
-    start = new Date().getTime();
-    for (let i = 0; i < repetitions; i++) {
-        const amountAfterFee = _subtractSwapFeeAmount(
-            bigIntAmount,
-            BigInt(10000000000000000)
-        );
-        const amountsIn = [amountAfterFee, BigInt(0)];
-        paraswapResult = ParaswapPool.WeightedMath._calcOutGivenIn(
-            balanceIn,
-            bigIntweightIn,
-            balanceOut,
-            bigIntweightOut,
-            amountsIn
-        );
+    let paraswapTime;
+    if (swapType == SwapTypes.SwapExactIn) {
+        start = new Date().getTime();
+        for (let i = 0; i < repetitions; i++) {
+            const amountAfterFee = _subtractSwapFeeAmount(
+                bigIntAmount,
+                BigInt(10000000000000000)
+            );
+            const amountsIn = [amountAfterFee, BigInt(0)];
+            paraswapResult = ParaswapPool.WeightedMath._calcOutGivenIn(
+                balanceIn,
+                bigIntweightIn,
+                balanceOut,
+                bigIntweightOut,
+                amountsIn
+            );
+        }
+        end = new Date().getTime();
+        paraswapTime = end - start;
+        console.log('Paraswap WeightedMath: ', end - start);
+    } else {
+        console.log('Paraswap does not have exact out implemented');
     }
-    end = new Date().getTime();
-    const paraswapTime = end - start;
-    console.log('Paraswap WeightedMath: ', end - start);
     console.log(
         'SOR weightedMath/Paraswap weightedMath: ',
         sorTime / paraswapTime,
